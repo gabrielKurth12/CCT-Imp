@@ -160,7 +160,7 @@ public class XMLUtils {
 
         Element transportContractDocument = new Element("TransportContractDocument", "ram", "iata:datamodel:3");
         transportContractDocument.addContent(BREAK_ROW);
-        transportContractDocument.addContent(fillIDElementCCTXML((entity.getCarrier() == null ? entity.getMasterNumber() : entity.getCarrier().getCodNumeric() == null ? entity.getMasterNumber() : entity.getCarrier().getCodNumeric()) + "-" + entity.getMasterNumber()));//#?#
+        transportContractDocument.addContent(fillIDElementCCTXML((entity.getCarrier() == null ? entity.getMasterNumber() : entity.getCarrier().getCodNumeric() == null ? entity.getMasterNumber() : entity.getCarrier().getCodNumeric()) + "-" + entity.getMasterNumber()));
         transportContractDocument.addContent(BREAK_ROW);
         masterConsignment.addContent(transportContractDocument);
         masterConsignment.addContent(BREAK_ROW);
