@@ -1,6 +1,7 @@
 package br.com.mmcs.cct.imp.forms;
 
-import br.com.mmcs.cct.imp.service.ShipmentHouseService;
+import br.com.mmcs.cct.imp.dao.ShipmentHouseDao;
+import br.com.mmcs.cct.imp.dao.impl.ShipmentHouseDaoImpl;
 import br.com.mmcs.cct.imp.utils.CertificadoUtils;
 import br.com.mmcs.cct.imp.utils.ConfiguracaoUtils;
 import java.awt.Dimension;
@@ -36,7 +37,7 @@ public class jifEnviarCai extends javax.swing.JInternalFrame {
     private String TAG_LOTE = "NumeroLote";
     private String TAG_RPS = "NumeroRPS";
     private TableRowSorter sorter;
-    private ShipmentHouseService shipmentHouseService;
+    private ShipmentHouseDao shipmentHouseDao = new ShipmentHouseDaoImpl();
 //    private NfseBhUtils nfseBhUtils;
 //    private NfseSalvadorControl salvadorControl;
 //    private NfseItajaiControl itajaiControl;
@@ -99,11 +100,11 @@ public class jifEnviarCai extends javax.swing.JInternalFrame {
 
             },
             new String [] {
-                "Selecionar", "Processo", "Cliente"
+                "Selecione", "Processo", "Cliente"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class
+                java.lang.Boolean.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
                 true, false, false
@@ -132,7 +133,7 @@ public class jifEnviarCai extends javax.swing.JInternalFrame {
             }
         });
         getContentPane().add(btnEnviarCte);
-        btnEnviarCte.setBounds(10, 347, 120, 36);
+        btnEnviarCte.setBounds(10, 347, 120, 25);
 
         jtxtPesquisaProcesso.setName(""); // NOI18N
         jtxtPesquisaProcesso.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -313,17 +314,14 @@ public class jifEnviarCai extends javax.swing.JInternalFrame {
     private void preencherTable() {
         DefaultTableModel dtm;
 
-        shipmentHouseService.findfrtValueAndCurrency("CAI");
-
-        List<Object[]> resultado;
-//        resultado = rpsDao.listaDadosParaEnvioRpsSP();
+        List<Object[]> results = shipmentHouseDao.findShipmentsByShipmentModal("CAI");
 
         dtm = (DefaultTableModel) jtableTtn.getModel();
         dtm.getDataVector().removeAllElements();
         jtableTtn.clearSelection();
-//        for (Object[] linha : resultado) {
-//            dtm.addRow(linha);
-//        }
+        for (Object[] line : results) {
+            dtm.addRow(line);
+        }
     }
 
     private Object[] pegarDadosDaLinha(int row, DefaultTableModel model) {

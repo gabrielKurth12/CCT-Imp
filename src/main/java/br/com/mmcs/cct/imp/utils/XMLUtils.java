@@ -1,11 +1,11 @@
 package br.com.mmcs.cct.imp.utils;
 
+import br.com.mmcs.cct.imp.dao.ShipmentHouseDao;
 import br.com.mmcs.cct.imp.model.Address;
 import br.com.mmcs.cct.imp.model.ContactGeneral;
 import br.com.mmcs.cct.imp.model.ShipmentContainer;
 import br.com.mmcs.cct.imp.model.ShipmentHouse;
 import br.com.mmcs.cct.imp.model.User;
-import br.com.mmcs.cct.imp.service.ShipmentHouseService;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import org.jdom.Document;
@@ -30,7 +30,7 @@ public class XMLUtils {
             + "]";
 
     @Autowired
-    private ShipmentHouseService houseService;
+    private ShipmentHouseDao shipmentHouseDao;
 
     private Document fillCCTDocument(ShipmentHouse entity) {
         String description = null;
@@ -910,7 +910,7 @@ public class XMLUtils {
                 includedHouseConsignmentItem.addContent(transportLogisticsPackage);
                 includedHouseConsignmentItem.addContent(BREAK_ROW);
                 Object[] frt = new Object[3];
-                frt = houseService.findfrtValueAndCurrency(entity.getId());
+                frt = shipmentHouseDao.findfrtValueAndCurrency(entity.getId());
                 if (frt[0] != null && frt[1] != null) {
                     Element applicableFreightRateServiceCharge = new Element("ApplicableFreightRateServiceCharge", "ram", "iata:datamodel:3");
 //                applicableFreightRateServiceCharge.addContent(BREAK_ROW);

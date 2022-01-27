@@ -64,10 +64,10 @@ public class FabricaDeConexoes {
      *
      * @return
      */
-//    private static final String USUARIO = "atlantis";
-//    private static final String SENHA = "qpalzm88*";
-//    private static final String DATABASE = "atlantis";
-//    private static final String STR_CONEXAO = "jdbc:mysql://128.201.72.207:3306/";
+    private static final String USUARIO = "atlantis";
+    private static final String SENHA = "qpalzm88*";
+    private static final String DATABASE = "atlantis";
+    private static final String STR_CONEXAO = "jdbc:mysql://128.201.72.207:3306/";
 //
     /**
      * MM Global
@@ -146,10 +146,10 @@ public class FabricaDeConexoes {
      *
      * @return
      */
-    private static final String USUARIO = "atlantis";
-    private static final String SENHA = "qpalzm88*";
-    private static final String DATABASE = "atlantis";
-    private static final String STR_CONEXAO = "jdbc:mysql://192.168.1.218:3306/";
+//    private static final String USUARIO = "atlantis";
+//    private static final String SENHA = "qpalzm88*";
+//    private static final String DATABASE = "atlantis";
+//    private static final String STR_CONEXAO = "jdbc:mysql://192.168.1.218:3306/";
 
     /**
      * Interno teste
