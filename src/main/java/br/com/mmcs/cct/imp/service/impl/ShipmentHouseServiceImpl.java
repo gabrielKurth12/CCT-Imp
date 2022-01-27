@@ -14,8 +14,8 @@ public class ShipmentHouseServiceImpl implements ShipmentHouseService {
     private ShipmentHouseDao dao;
 
     @Override
-    public Object[] findfrtValueAndCurrency(Long houseId) {
-        return dao.findfrtValueAndCurrency(houseId);
+    public Object[] findfrtValueAndCurrency(String shipmentModal) {
+        return dao.findfrtValueAndCurrency(shipmentModal);
     }
 
 }

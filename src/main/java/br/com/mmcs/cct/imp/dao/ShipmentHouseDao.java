@@ -6,6 +6,6 @@ package br.com.mmcs.cct.imp.dao;
  */
 public interface ShipmentHouseDao {
 
-    public Object[] findfrtValueAndCurrency(Long houseId);
+    public Object[] findfrtValueAndCurrency(String shipmentModal);
 
 }

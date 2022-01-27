@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  *
@@ -16,27 +17,24 @@ public class ShipmentHouseDaoImpl implements ShipmentHouseDao {
     private Connection connection;
     private PreparedStatement statement;
     private ResultSet resultSet;
+    private List<Object[]> results;
 
     @Override //TODO tratar query
-    public Object[] findfrtValueAndCurrency(Long houseId) {
+    public Object[] findfrtValueAndCurrency(String shipmentModal) {
         StringBuilder query = new StringBuilder();
 //        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
-        query.append("SELECT ");
-        query.append("CURR.SYMBOL, ");
-        query.append("SR.TOTAL_SALES, ");
-        query.append("SR.RATE_SALES, ");
-        query.append("SER.CODE ");
-        query.append("FROM M0020_SHIPMENT_HOUSE SH ");
-        query.append("LEFT JOIN M0020_SHIPMENT_RATE AS SR ON SH.ID = SR.HOUSE_FK ");
-        query.append("LEFT JOIN M0101_CURRENCY AS CURR ON CURR.ID = SR.CURRENCY_SALES_FK ");
-        query.append("LEFT JOIN M0201_SERVICE AS SER ON SER.ID = SR.SERVICE_FK ");
-        query.append("WHERE SER.IS_FREIGHT IS TRUE AND SH.ID = ?1 ");
+        query.append("SELECT")
+                .append(" SH.SHIPMENT_NUMBER,")
+                .append(" CG.COMMERCIAL_NAME")
+                .append(" FROM M0020_SHIPMENT_HOUSE SH")
+                .append(" INNER JOIN M0130_CONTACT_GENERAL CG ON CG.ID = SH.CLIENT_CONTACT_GENERAL_FK")
+                .append(" WHERE SH.SHIPMENT_MODAL = ?1");
 
         try {
             connection = FabricaDeConexoes.getConexao();
             statement = connection.prepareStatement(query.toString());
-            statement.setLong(1, houseId);
+            statement.setString(1, shipmentModal);
             resultSet = statement.executeQuery();
 
 //            while (resultSet.next()) {
@@ -44,9 +42,8 @@ public class ShipmentHouseDaoImpl implements ShipmentHouseDao {
 //                for (int i = 1; i <= resultSetMetaData.getColumnCount(); i++) {
 //                    values[i - 1] = resultSet.getObject(i);
 //                }
-//                dadosDaListagem.add(values);
+//                results.add(values);
 //            }
-
             FabricaDeConexoes.fecharConexao(connection, statement, resultSet);
             resultSet.close();
             statement.close();

@@ -1,5 +1,6 @@
 package br.com.mmcs.cct.imp.forms;
 
+import br.com.mmcs.cct.imp.service.ShipmentHouseService;
 import br.com.mmcs.cct.imp.utils.CertificadoUtils;
 import br.com.mmcs.cct.imp.utils.ConfiguracaoUtils;
 import java.awt.Dimension;
@@ -35,6 +36,7 @@ public class jifEnviarCai extends javax.swing.JInternalFrame {
     private String TAG_LOTE = "NumeroLote";
     private String TAG_RPS = "NumeroRPS";
     private TableRowSorter sorter;
+    private ShipmentHouseService shipmentHouseService;
 //    private NfseBhUtils nfseBhUtils;
 //    private NfseSalvadorControl salvadorControl;
 //    private NfseItajaiControl itajaiControl;
@@ -310,6 +312,9 @@ public class jifEnviarCai extends javax.swing.JInternalFrame {
 
     private void preencherTable() {
         DefaultTableModel dtm;
+
+        shipmentHouseService.findfrtValueAndCurrency("CAI");
+
         List<Object[]> resultado;
 //        resultado = rpsDao.listaDadosParaEnvioRpsSP();
 
