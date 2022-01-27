@@ -69,12 +69,12 @@ public class ShipmentHouseDaoImpl implements ShipmentHouseDao {
                 .append(" CG.COMMERCIAL_NAME")
                 .append(" FROM M0020_SHIPMENT_HOUSE SH")
                 .append(" INNER JOIN M0130_CONTACT_GENERAL CG ON CG.ID = SH.CLIENT_CONTACT_GENERAL_FK")
-                .append(" WHERE SH.SHIPMENT_MODAL = 'CAI'");
+                .append(" WHERE SH.SHIPMENT_MODAL = ?");
 
         try {
             connection = FabricaDeConexoes.getConexao();
             statement = connection.prepareStatement(query.toString());
-//            statement.setString(1, shipmentModal);
+            statement.setString(1, shipmentModal);
             resultSet = statement.executeQuery();
             ResultSetMetaData metaData = resultSet.getMetaData();
             int columnCount = metaData.getColumnCount();
