@@ -629,7 +629,7 @@ public class XMLUtils {
 
         }
 
-        ShipmentContainer sc = null;
+        ShipmentContainer sc = null; //TODO retirar a utilização de lista visto que é utilizado somente o primeiro container da lista
         if (entity.getShipmentContainers() != null && !entity.getShipmentContainers().isEmpty()) {
             sc = entity.getShipmentContainers().get(0);
             Element utilizedLogisticsTransportEquipment = new Element("UtilizedLogisticsTransportEquipment", "ram", "iata:datamodel:3");
@@ -643,7 +643,7 @@ public class XMLUtils {
                     utilizedLogisticsTransportEquipment.addContent(createNewElementToXml("CharacteristicCode", "ram", "iata:datamodel:3", sc == null ? "" : sc.getVolumeType() == null ? "" : sc.getVolumeType().getCode()));//#?#
                     utilizedLogisticsTransportEquipment.addContent(BREAK_ROW);
                 }
-                if (sc.getVolumeType().getComments() != null) {
+                if (sc.getVolumeType().getDescription() != null) {
                     utilizedLogisticsTransportEquipment.addContent(createNewElementToXml("Characteristic", "ram", "iata:datamodel:3", sc == null ? "" : sc.getVolumeType() == null ? "" : sc.getVolumeType().getDescription()));//#?#
                     utilizedLogisticsTransportEquipment.addContent(BREAK_ROW);
                 }

@@ -26,6 +26,7 @@ import javax.xml.transform.TransformerException;
  */
 public class jifEnviarCai extends javax.swing.JInternalFrame {
 
+    private ShipmentHouseDao shipmentHouseDao = new ShipmentHouseDaoImpl();
 //    private RpsDao rpsDao;
 //    private NfseControl nfseControl;
 //    private NfseBHControl bHControl;
@@ -37,7 +38,6 @@ public class jifEnviarCai extends javax.swing.JInternalFrame {
     private String TAG_LOTE = "NumeroLote";
     private String TAG_RPS = "NumeroRPS";
     private TableRowSorter sorter;
-    private ShipmentHouseDao shipmentHouseDao = new ShipmentHouseDaoImpl();
 //    private NfseBhUtils nfseBhUtils;
 //    private NfseSalvadorControl salvadorControl;
 //    private NfseItajaiControl itajaiControl;
