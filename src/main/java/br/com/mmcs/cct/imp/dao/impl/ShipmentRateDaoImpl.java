@@ -26,15 +26,14 @@ public class ShipmentRateDaoImpl implements ShipmentRateDao {
         StringBuilder query = new StringBuilder();
 
         query.append("SELECT ");
-        query.append("CURR.SYMBOL, ");
-        query.append("SR.TOTAL_SALES, ");
-        query.append("SR.RATE_SALES, ");
-        query.append("SER.CODE ");
-        query.append("FROM M0020_SHIPMENT_HOUSE SH ");
-        query.append("LEFT JOIN M0020_SHIPMENT_RATE AS SR ON SH.ID = SR.HOUSE_FK ");
-        query.append("LEFT JOIN M0101_CURRENCY AS CURR ON CURR.ID = SR.CURRENCY_SALES_FK ");
-        query.append("LEFT JOIN M0201_SERVICE AS SER ON SER.ID = SR.SERVICE_FK ");
-        query.append("WHERE SER.IS_FREIGHT IS TRUE AND SH.ID = ?1 ");
+        query.append("currency.SYMBOL, ");
+        query.append("shipmentRate.TOTAL_SALES, ");
+        query.append("shipmentRate.RATE_SALES, ");
+        query.append("service.CODE ");
+        query.append("FROM M0020_SHIPMENT_RATE shipmentRate ");
+        query.append("LEFT JOIN M0101_CURRENCY currency ON currency.ID = shipmentRate.CURRENCY_SALES_FK ");
+        query.append("LEFT JOIN M0201_SERVICE service ON service.ID = shipmentRate.SERVICE_FK ");
+        query.append("WHERE service.IS_FREIGHT IS TRUE AND shipmentRate.HOUSE_FK = ?1 ");
 
         try {
             connection = FabricaDeConexoes.getConexao();

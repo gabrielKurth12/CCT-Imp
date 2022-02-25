@@ -30,9 +30,9 @@ import org.jdom.Document;
  */
 public class jifEnviarCai extends javax.swing.JInternalFrame {
 
-    private ShipmentHouseDaoImpl shipmentHouseDao = new ShipmentHouseDaoImpl();
-    private QuotationVolumeDaoImpl quotationVolumeDao = new QuotationVolumeDaoImpl();
-    private TranshipmentDaoImpl transhipmentDaoImpl = new TranshipmentDaoImpl();
+    private final ShipmentHouseDaoImpl shipmentHouseDao = new ShipmentHouseDaoImpl();
+    private final QuotationVolumeDaoImpl quotationVolumeDao = new QuotationVolumeDaoImpl();
+    private final TranshipmentDaoImpl transhipmentDaoImpl = new TranshipmentDaoImpl();
 //    private RpsDao rpsDao;
 //    private NfseControl nfseControl;
 //    private NfseBHControl bHControl;
@@ -72,7 +72,7 @@ public class jifEnviarCai extends javax.swing.JInternalFrame {
     }
 
     private void criarSorter() {
-        sorter = new TableRowSorter<DefaultTableModel>((DefaultTableModel) jtableTtn.getModel());
+        sorter = new TableRowSorter<>((DefaultTableModel) jtableTtn.getModel());
         jtableTtn.setRowSorter(sorter);
 
     }
