@@ -1,6 +1,6 @@
 package br.com.mmcs.cct.imp.model;
 
-import java.math.BigDecimal;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,9 +10,10 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@Builder
 // Tabela -> M0205_QUOTATION
 public class Quotation {
 
-    private BigDecimal chargeableWeight; // CHARGEABLE_WEIGHT
+    private String chargeableWeight; // CHARGEABLE_WEIGHT
 
 }

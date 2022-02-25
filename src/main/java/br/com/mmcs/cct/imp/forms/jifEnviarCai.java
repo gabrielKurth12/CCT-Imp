@@ -1,9 +1,12 @@
 package br.com.mmcs.cct.imp.forms;
 
-import br.com.mmcs.cct.imp.dao.ShipmentHouseDao;
+import br.com.mmcs.cct.imp.dao.impl.QuotationVolumeDaoImpl;
 import br.com.mmcs.cct.imp.dao.impl.ShipmentHouseDaoImpl;
+import br.com.mmcs.cct.imp.dao.impl.TranshipmentDaoImpl;
+import br.com.mmcs.cct.imp.model.ShipmentHouse;
 import br.com.mmcs.cct.imp.utils.CertificadoUtils;
 import br.com.mmcs.cct.imp.utils.ConfiguracaoUtils;
+import br.com.mmcs.cct.imp.utils.XMLUtils;
 import java.awt.Dimension;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -19,6 +22,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import org.jdom.Document;
 
 /**
  *
@@ -26,17 +30,19 @@ import javax.xml.transform.TransformerException;
  */
 public class jifEnviarCai extends javax.swing.JInternalFrame {
 
-    private ShipmentHouseDao shipmentHouseDao = new ShipmentHouseDaoImpl();
+    private ShipmentHouseDaoImpl shipmentHouseDao = new ShipmentHouseDaoImpl();
+    private QuotationVolumeDaoImpl quotationVolumeDao = new QuotationVolumeDaoImpl();
+    private TranshipmentDaoImpl transhipmentDaoImpl = new TranshipmentDaoImpl();
 //    private RpsDao rpsDao;
 //    private NfseControl nfseControl;
 //    private NfseBHControl bHControl;
 //    private NfsePortoAlegreControl portoAlegreControl;
 //    private NfseGinfesControl nfseGinfesControl;
 //    private NfseVilaVelhaControl nfseVilaVelhaControl;
-    private String TAG_NFE = "NumeroNFe";
-    private String TAG_NFE_CODE = "CodigoVerificacao";
-    private String TAG_LOTE = "NumeroLote";
-    private String TAG_RPS = "NumeroRPS";
+//    private String TAG_NFE = "NumeroNFe";
+//    private String TAG_NFE_CODE = "CodigoVerificacao";
+//    private String TAG_LOTE = "NumeroLote";
+//    private String TAG_RPS = "NumeroRPS";
     private TableRowSorter sorter;
 //    private NfseBhUtils nfseBhUtils;
 //    private NfseSalvadorControl salvadorControl;
@@ -100,14 +106,14 @@ public class jifEnviarCai extends javax.swing.JInternalFrame {
 
             },
             new String [] {
-                "Selecione", "Processo", "Cliente"
+                "Selecionar", "Processo", "Cliente", "null"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Boolean.class, java.lang.String.class, java.lang.String.class
+                java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
             };
             boolean[] canEdit = new boolean [] {
-                true, false, false
+                true, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -122,6 +128,10 @@ public class jifEnviarCai extends javax.swing.JInternalFrame {
         jtableTtn.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jScrollPane1.setViewportView(jtableTtn);
         jtableTtn.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        if (jtableTtn.getColumnModel().getColumnCount() > 0) {
+            jtableTtn.getColumnModel().getColumn(3).setMinWidth(0);
+            jtableTtn.getColumnModel().getColumn(3).setMaxWidth(0);
+        }
 
         getContentPane().add(jScrollPane1);
         jScrollPane1.setBounds(0, 70, 1010, 240);
@@ -184,7 +194,6 @@ public class jifEnviarCai extends javax.swing.JInternalFrame {
 
 
     private void btnEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarActionPerformed
-//        PedidoEnvioLoteRPS envioLoteRPS = null;
         String response = null;
         List<Object[]> linhasSelecionadas = new ArrayList<Object[]>();
         List<Integer> linhas = getSelectRows();
@@ -194,6 +203,16 @@ public class jifEnviarCai extends javax.swing.JInternalFrame {
             linhasSelecionadas.add(pegarDadosDaLinha(linha, (DefaultTableModel) jtableTtn.getModel()));
         }
         try {
+            final Long shipmentHouseId = new Long(linhasSelecionadas.get(0)[3].toString());
+            ShipmentHouse shipmentHouse = shipmentHouseDao.findShipmentById(shipmentHouseId);
+            shipmentHouse.setVolumes(quotationVolumeDao.findQuotationVolumeByShipmentHouseId(shipmentHouseId));
+            shipmentHouse.setTranshipments(transhipmentDaoImpl.findByShipmentHouseId(shipmentHouseId));
+
+            XMLUtils xmlUtils = new XMLUtils();
+            Document doc = xmlUtils.fillCCTDocument(shipmentHouse);
+
+            System.out.println(doc);
+
             CertificadoUtils.criarConexaoComOCertificado(ConfiguracaoUtils.getTipoCertificado());
             CertificadoUtils.carregarCertificadosNaKeyStore(ConfiguracaoUtils.getTipoCertificado());
 

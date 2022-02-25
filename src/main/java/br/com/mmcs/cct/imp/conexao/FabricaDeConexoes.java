@@ -27,10 +27,10 @@ public class FabricaDeConexoes {
      *
      * @return
      */
-//    private static final String USUARIO = "cheetah";
-//    private static final String SENHA = "qpalzm88*";
-//    private static final String DATABASE = "cheetahweb";
-//    private static final String STR_CONEXAO = "jdbc:mysql://177.54.150.120:3306/";
+    private static final String USUARIO = "cheetah";
+    private static final String SENHA = "qpalzm88*";
+    private static final String DATABASE = "cheetahweb";
+    private static final String STR_CONEXAO = "jdbc:mysql://177.54.150.120:3306/";
 //
     /**
      * GP Externo
@@ -64,10 +64,10 @@ public class FabricaDeConexoes {
      *
      * @return
      */
-    private static final String USUARIO = "atlantis";
-    private static final String SENHA = "qpalzm88*";
-    private static final String DATABASE = "atlantis";
-    private static final String STR_CONEXAO = "jdbc:mysql://128.201.72.207:3306/";
+//    private static final String USUARIO = "atlantis";
+//    private static final String SENHA = "qpalzm88*";
+//    private static final String DATABASE = "atlantis";
+//    private static final String STR_CONEXAO = "jdbc:mysql://128.201.72.207:3306/";
 //
     /**
      * MM Global

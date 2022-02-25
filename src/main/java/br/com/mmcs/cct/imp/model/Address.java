@@ -1,6 +1,7 @@
 package br.com.mmcs.cct.imp.model;
 
 import br.com.mmcs.cct.imp.model.enumeration.AddressTypeEnum;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,6 +11,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@Builder
 // Tabela -> M0001_ADDRESS
 public class Address {
 

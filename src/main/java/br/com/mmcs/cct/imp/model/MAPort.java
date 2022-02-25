@@ -1,5 +1,6 @@
 package br.com.mmcs.cct.imp.model;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@Builder
 // Tabela -> M0105_MAPORT
 public class MAPort {
 

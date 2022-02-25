@@ -1,18 +1,18 @@
 package br.com.mmcs.cct.imp.utils;
 
-import br.com.mmcs.cct.imp.dao.ShipmentHouseDao;
+import br.com.mmcs.cct.imp.dao.impl.ShipmentHouseDaoImpl;
+import br.com.mmcs.cct.imp.dao.impl.ShipmentRateDaoImpl;
 import br.com.mmcs.cct.imp.model.Address;
 import br.com.mmcs.cct.imp.model.ContactGeneral;
-import br.com.mmcs.cct.imp.model.ShipmentContainer;
 import br.com.mmcs.cct.imp.model.ShipmentHouse;
 import br.com.mmcs.cct.imp.model.User;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.Objects;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
 import org.joda.time.DateTime;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -29,10 +29,9 @@ public class XMLUtils {
             + "\ud800\udc00-\udbff\udfff"
             + "]";
 
-    @Autowired
-    private ShipmentHouseDao shipmentHouseDao;
+    private ShipmentRateDaoImpl shipmentRateDaoImpl = new ShipmentRateDaoImpl();
 
-    private Document fillCCTDocument(ShipmentHouse entity) {
+    public Document fillCCTDocument(ShipmentHouse entity) {
         String description = null;
         DecimalFormat dFormat = new DecimalFormat("###0.000");
         String nameCG = "";
@@ -151,7 +150,7 @@ public class XMLUtils {
         masterConsignment.addContent(BREAK_ROW);
         Element includedTareGrossWeightMeasure = new Element("IncludedTareGrossWeightMeasure", "ram", "iata:datamodel:3");
         includedTareGrossWeightMeasure.setAttribute("unitCode", "KGM");
-        includedTareGrossWeightMeasure.addContent(entity == null ? "0.000" : entity.getBruteWeight() == null ? "0.000" : dFormat.format(entity.getBruteWeight()).toString());//#?#
+        includedTareGrossWeightMeasure.addContent(entity == null ? "0.000" : entity.getBruteWeight() == null ? "0.000" : dFormat.format(new BigDecimal(entity.getBruteWeight())).toString());
         masterConsignment.addContent(includedTareGrossWeightMeasure);
         masterConsignment.addContent(BREAK_ROW);
 
@@ -193,7 +192,7 @@ public class XMLUtils {
 
 //        includedHouseConsignment.addContent(createNewElementToXml("AdditionalID", "ram", "iata:datamodel:3", "XXXXXXXXXXXXXX"));//#?#
 //        includedHouseConsignment.addContent(BREAK_ROW);
-        if (entity.getNotify() != null) {
+        if (entity.getNotify() != null && entity.getNotify().getCommercialName() != null) {
             nameCG = entity.getNotify().getCommercialName();
             nameCG = nameCG.replaceAll("\n", " ");
             nameCG = nameCG.replaceAll(XML_PATTERN, " ");
@@ -282,7 +281,7 @@ public class XMLUtils {
 //        includedHouseConsignment.addContent(BREAK_ROW);
         includedTareGrossWeightMeasure = new Element("IncludedTareGrossWeightMeasure", "ram", "iata:datamodel:3");
         includedTareGrossWeightMeasure.setAttribute("unitCode", "KGM");
-        includedTareGrossWeightMeasure.addContent(entity.getBruteWeight() == null ? "0.000" : dFormat.format(entity.getBruteWeight()).toString());
+        includedTareGrossWeightMeasure.addContent(entity.getBruteWeight() == null ? "0.000" : dFormat.format(new BigDecimal(entity.getBruteWeight())).toString());
         includedHouseConsignment.addContent(includedTareGrossWeightMeasure);
         includedHouseConsignment.addContent(BREAK_ROW);
 
@@ -523,7 +522,7 @@ public class XMLUtils {
 
         Element arrivalEvent = new Element("ArrivalEvent", "ram", "iata:datamodel:3");
         arrivalEvent.addContent(BREAK_ROW);
-        arrivalEvent.addContent(createNewElementToXml("ScheduledOccurrenceDateTime", "ram", "iata:datamodel:3", new DateTime(entity.getForecastArrival()).toString()));
+        arrivalEvent.addContent(createNewElementToXml("ScheduledOccurrenceDateTime", "ram", "iata:datamodel:3", entity.getForecastArrival().toString()));
         arrivalEvent.addContent(BREAK_ROW);
 
         Element occurrenceArrivalLocation = new Element("OccurrenceArrivalLocation", "ram", "iata:datamodel:3");//#?#
@@ -542,7 +541,7 @@ public class XMLUtils {
 
         Element departureEvent = new Element("DepartureEvent", "ram", "iata:datamodel:3");
         departureEvent.addContent(BREAK_ROW);
-        departureEvent.addContent(createNewElementToXml("ScheduledOccurrenceDateTime", "ram", "iata:datamodel:3", new DateTime(entity.getForecastOutput()).toString()));
+        departureEvent.addContent(createNewElementToXml("ScheduledOccurrenceDateTime", "ram", "iata:datamodel:3", entity.getForecastOutput().toString()));
         departureEvent.addContent(BREAK_ROW);
 
         Element occurrenceDepartureLocation = new Element("OccurrenceDepartureLocation", "ram", "iata:datamodel:3");
@@ -586,7 +585,7 @@ public class XMLUtils {
 
                 arrivalEvent = new Element("ArrivalEvent", "ram", "iata:datamodel:3");
                 arrivalEvent.addContent(BREAK_ROW);
-                arrivalEvent.addContent(createNewElementToXml("ScheduledOccurrenceDateTime", "ram", "iata:datamodel:3", entity.getTranshipments().get(i).getEtd() == null ? "" : new DateTime(entity.getTranshipments().get(i).getEtd()).toString()));
+                arrivalEvent.addContent(createNewElementToXml("ScheduledOccurrenceDateTime", "ram", "iata:datamodel:3", entity.getTranshipments().get(i).getEtd() == null ? "" : entity.getTranshipments().get(i).getEtd()));
                 arrivalEvent.addContent(BREAK_ROW);
 
                 occurrenceArrivalLocation = new Element("OccurrenceArrivalLocation", "ram", "iata:datamodel:3");//#?#
@@ -629,29 +628,27 @@ public class XMLUtils {
 
         }
 
-        ShipmentContainer sc = null; //TODO retirar a utilização de lista visto que é utilizado somente o primeiro container da lista
-        if (entity.getShipmentContainers() != null && !entity.getShipmentContainers().isEmpty()) {
-            sc = entity.getShipmentContainers().get(0);
+        if (entity.getShipmentContainer() != null) {
             Element utilizedLogisticsTransportEquipment = new Element("UtilizedLogisticsTransportEquipment", "ram", "iata:datamodel:3");
             utilizedLogisticsTransportEquipment.addContent(BREAK_ROW);
-            if (sc.getContainerNumber() != null) {
-                utilizedLogisticsTransportEquipment.addContent(fillIDElementCCTXML(sc == null ? "" : sc.getContainerNumber()));
+            if (entity.getShipmentContainer().getContainerNumber() != null) {
+                utilizedLogisticsTransportEquipment.addContent(fillIDElementCCTXML(entity.getShipmentContainer() == null ? "" : entity.getShipmentContainer().getContainerNumber()));
                 utilizedLogisticsTransportEquipment.addContent(BREAK_ROW);
             }
-            if (sc.getVolumeType() != null) {
-                if (sc.getVolumeType().getCode() != null) {
-                    utilizedLogisticsTransportEquipment.addContent(createNewElementToXml("CharacteristicCode", "ram", "iata:datamodel:3", sc == null ? "" : sc.getVolumeType() == null ? "" : sc.getVolumeType().getCode()));//#?#
+            if (entity.getShipmentContainer().getVolumeType() != null) {
+                if (entity.getShipmentContainer().getVolumeType().getCode() != null) {
+                    utilizedLogisticsTransportEquipment.addContent(createNewElementToXml("CharacteristicCode", "ram", "iata:datamodel:3", entity.getShipmentContainer() == null ? "" : entity.getShipmentContainer().getVolumeType() == null ? "" : entity.getShipmentContainer().getVolumeType().getCode()));
                     utilizedLogisticsTransportEquipment.addContent(BREAK_ROW);
                 }
-                if (sc.getVolumeType().getDescription() != null) {
-                    utilizedLogisticsTransportEquipment.addContent(createNewElementToXml("Characteristic", "ram", "iata:datamodel:3", sc == null ? "" : sc.getVolumeType() == null ? "" : sc.getVolumeType().getDescription()));//#?#
+                if (entity.getShipmentContainer().getVolumeType().getDescription() != null) {
+                    utilizedLogisticsTransportEquipment.addContent(createNewElementToXml("Characteristic", "ram", "iata:datamodel:3", entity.getShipmentContainer() == null ? "" : entity.getShipmentContainer().getVolumeType() == null ? "" : entity.getShipmentContainer().getVolumeType().getDescription()));
                     utilizedLogisticsTransportEquipment.addContent(BREAK_ROW);
                 }
             }
-            if (sc.getSealOne() != null) {
+            if (entity.getShipmentContainer().getSealOne() != null) {
                 Element affixedLogisticsSeal = new Element("AffixedLogisticsSeal", "ram", "iata:datamodel:3");
                 affixedLogisticsSeal.addContent(BREAK_ROW);
-                affixedLogisticsSeal.addContent(fillIDElementCCTXML(sc.getSealOne()));//#?#
+                affixedLogisticsSeal.addContent(fillIDElementCCTXML(entity.getShipmentContainer().getSealOne()));
                 affixedLogisticsSeal.addContent(BREAK_ROW);
 
                 utilizedLogisticsTransportEquipment.addContent(affixedLogisticsSeal);
@@ -712,7 +709,7 @@ public class XMLUtils {
         associatedReferenceDocument.addContent(BREAK_ROW);
         associatedReferenceDocument.addContent(fillIDElementCCTXML((entity.getCarrier() == null ? entity.getMasterNumber() : entity.getCarrier().getCodNumeric() == null ? entity.getMasterNumber() : entity.getCarrier().getCodNumeric()) + "-" + entity.getMasterNumber()));//#?#
         associatedReferenceDocument.addContent(BREAK_ROW);
-        associatedReferenceDocument.addContent(createNewElementToXml("IssueDateTime", "ram", "iata:datamodel:3", entity.getDateIssueHouse() == null ? "" : new DateTime(entity.getDateIssueHouse()).toString()));
+        associatedReferenceDocument.addContent(createNewElementToXml("IssueDateTime", "ram", "iata:datamodel:3", entity.getDateIssueHouse() == null ? "" : entity.getDateIssueHouse().toString()));
         associatedReferenceDocument.addContent(BREAK_ROW);
 //        associatedReferenceDocument.addContent(createNewElementToXml("TypeCode", "ram", "iata:datamodel:3", "XXXXXXXX"));//#?#
 //        associatedReferenceDocument.addContent(BREAK_ROW);
@@ -760,7 +757,7 @@ public class XMLUtils {
 
         Element actualAmount = new Element("ActualAmount", "ram", "iata:datamodel:3");
         actualAmount.setAttribute("currencyID", entity.getShipmentCurrency() == null ? "" : entity.getShipmentCurrency().getSymbol());
-        actualAmount.addContent(entity.getWeightToCharge() == null ? dFormat.format(new BigDecimal(0)) : dFormat.format(entity.getWeightToCharge())).toString();//#?#
+        actualAmount.addContent(entity.getWeightToCharge() == null ? dFormat.format(new BigDecimal(0)) : dFormat.format(new BigDecimal(entity.getWeightToCharge()))).toString();
         applicableLogisticsAllowanceCharge.addContent(actualAmount);
         applicableLogisticsAllowanceCharge.addContent(BREAK_ROW);
 //        applicableLogisticsAllowanceCharge.addContent(createNewElementToXml("PartyTypeCode", "ram", "iata:datamodel:3", "XXXXXXXXXXXX"));//#?#
@@ -768,7 +765,7 @@ public class XMLUtils {
         includedHouseConsignment.addContent(applicableLogisticsAllowanceCharge);
         includedHouseConsignment.addContent(BREAK_ROW);
 
-        if (!entity.getVolumes().isEmpty()) {
+        if (Objects.nonNull(entity.getVolumes()) && !entity.getVolumes().isEmpty()) {
             for (int i = 0; i < entity.getVolumes().size(); i++) {
                 Element includedHouseConsignmentItem = new Element("IncludedHouseConsignmentItem", "ram", "iata:datamodel:3");
                 includedHouseConsignmentItem.addContent(BREAK_ROW);
@@ -784,21 +781,21 @@ public class XMLUtils {
                 if (entity.getVolumes().get(i).getTotalWeight() != null) {
                     Element grossWeightMeasure = new Element("GrossWeightMeasure", "ram", "iata:datamodel:3");
                     grossWeightMeasure.setAttribute("unitCode", "KGM");//#?#
-                    grossWeightMeasure.addContent(entity.getVolumes().get(i).getTotalWeight() == null ? "" : dFormat.format(entity.getVolumes().get(i).getTotalWeight()).toString());
+                    grossWeightMeasure.addContent(entity.getVolumes().get(i).getTotalWeight() == null ? "" : dFormat.format(new BigDecimal(entity.getVolumes().get(i).getTotalWeight())).toString());
                     includedHouseConsignmentItem.addContent(grossWeightMeasure);
                     includedHouseConsignmentItem.addContent(BREAK_ROW);
                 }
                 if (entity.getVolumes().get(i).getVolume() != null) {
                     grossVolumeMeasure = new Element("GrossVolumeMeasure", "ram", "iata:datamodel:3");
                     grossVolumeMeasure.setAttribute("unitCode", "KGM");//#?#
-                    grossVolumeMeasure.addContent(entity.getVolumes().get(i).getVolume() == null ? "" : dFormat.format(entity.getVolumes().get(i).getVolume()).toString());
+                    grossVolumeMeasure.addContent(entity.getVolumes().get(i).getVolume() == null ? "" : dFormat.format(new BigDecimal(entity.getVolumes().get(i).getVolume())).toString());
                     includedHouseConsignmentItem.addContent(grossVolumeMeasure);
                     includedHouseConsignmentItem.addContent(BREAK_ROW);
                 }
                 if (entity.getQuotationHouse() != null && entity.getQuotationHouse().getChargeableWeight() != null) {
                     Element totalChargeAmount = new Element("TotalChargeAmount", "ram", "iata:datamodel:3");
                     totalChargeAmount.setAttribute("currencyID", entity.getShipmentCurrency() == null ? "" : entity.getShipmentCurrency().getSymbol());
-                    totalChargeAmount.addContent(entity.getQuotationHouse() == null ? "" : entity.getQuotationHouse().getChargeableWeight() == null ? "" : dFormat.format(entity.getQuotationHouse().getChargeableWeight()).toString());
+                    totalChargeAmount.addContent(entity.getQuotationHouse() == null ? "" : entity.getQuotationHouse().getChargeableWeight() == null ? "" : dFormat.format(new BigDecimal(entity.getQuotationHouse().getChargeableWeight())));
                     includedHouseConsignmentItem.addContent(totalChargeAmount);
                     includedHouseConsignmentItem.addContent(BREAK_ROW);
                 }
@@ -820,20 +817,22 @@ public class XMLUtils {
 
                     }
                     String descriptionCargo = entity.getVolumes().get(i).getVolumeType().getDescription();
-                    descriptionCargo = descriptionCargo.replaceAll("\n", " ");
-                    descriptionCargo = descriptionCargo.replaceAll(XML_PATTERN, " ");
-                    descriptionCargo = descriptionCargo.replaceAll("&", "E");
-                    descriptionCargo = descriptionCargo.replaceAll("#", " ");
-                    descriptionCargo = descriptionCargo.replaceAll(">", " ");
-                    descriptionCargo = descriptionCargo.replaceAll("â€œ", " ");
-                    descriptionCargo = descriptionCargo.replaceAll("`", " ");
-                    descriptionCargo = descriptionCargo.replaceAll("\"", " ");
-                    Element natureIdentificationTransportCargo = new Element("NatureIdentificationTransportCargo", "ram", "iata:datamodel:3");
-                    natureIdentificationTransportCargo.addContent(BREAK_ROW);
-                    natureIdentificationTransportCargo.addContent(createNewElementToXml("Identification", "ram", "iata:datamodel:3", descriptionCargo));//#?#
-                    natureIdentificationTransportCargo.addContent(BREAK_ROW);
-                    includedHouseConsignmentItem.addContent(natureIdentificationTransportCargo);
-                    includedHouseConsignmentItem.addContent(BREAK_ROW);
+                    if (Objects.nonNull(descriptionCargo)) {
+                        descriptionCargo = descriptionCargo.replaceAll("\n", " ");
+                        descriptionCargo = descriptionCargo.replaceAll(XML_PATTERN, " ");
+                        descriptionCargo = descriptionCargo.replaceAll("&", "E");
+                        descriptionCargo = descriptionCargo.replaceAll("#", " ");
+                        descriptionCargo = descriptionCargo.replaceAll(">", " ");
+                        descriptionCargo = descriptionCargo.replaceAll("â€œ", " ");
+                        descriptionCargo = descriptionCargo.replaceAll("`", " ");
+                        descriptionCargo = descriptionCargo.replaceAll("\"", " ");
+                        Element natureIdentificationTransportCargo = new Element("NatureIdentificationTransportCargo", "ram", "iata:datamodel:3");
+                        natureIdentificationTransportCargo.addContent(BREAK_ROW);
+                        natureIdentificationTransportCargo.addContent(createNewElementToXml("Identification", "ram", "iata:datamodel:3", descriptionCargo));
+                        natureIdentificationTransportCargo.addContent(BREAK_ROW);
+                        includedHouseConsignmentItem.addContent(natureIdentificationTransportCargo);
+                        includedHouseConsignmentItem.addContent(BREAK_ROW);
+                    }
                 }
                 if (entity.getOrigin().getCountry() != null) {
                     Element originCountry = new Element("OriginCountry", "ram", "iata:datamodel:3");
@@ -851,7 +850,7 @@ public class XMLUtils {
 
                 Element tareWeightMeasure = new Element("TareWeightMeasure", "ram", "iata:datamodel:3");
                 tareWeightMeasure.setAttribute("unitCode", "KGM");
-                tareWeightMeasure.addContent(entity.getVolumes().get(i).getUnitWeight() == null ? "" : entity.getVolumes().get(i).getUnitWeight().toString());//#?#
+                tareWeightMeasure.addContent(entity.getVolumes().get(i).getUnitWeight() == null ? "" : entity.getVolumes().get(i).getUnitWeight());
                 associatedUnitLoadTransportEquipment.addContent(tareWeightMeasure);
                 associatedUnitLoadTransportEquipment.addContent(BREAK_ROW);
 
@@ -873,13 +872,13 @@ public class XMLUtils {
                 Element transportLogisticsPackage = new Element("TransportLogisticsPackage", "ram", "iata:datamodel:3");
                 if (entity.getVolumes().get(i).getQuantity() != null) {
                     transportLogisticsPackage.addContent(BREAK_ROW);
-                    transportLogisticsPackage.addContent(createNewElementToXml("ItemQuantity", "ram", "iata:datamodel:3", String.valueOf(entity.getVolumes().get(i).getQuantity())));//#?#
+                    transportLogisticsPackage.addContent(createNewElementToXml("ItemQuantity", "ram", "iata:datamodel:3", String.valueOf(entity.getVolumes().get(i).getQuantity())));
                     transportLogisticsPackage.addContent(BREAK_ROW);
                 }
                 if (entity.getVolumes().get(i).getTotalWeight() != null) {
                     Element grossWeightMeasure = new Element("GrossWeightMeasure", "ram", "iata:datamodel:3");
                     grossWeightMeasure.setAttribute("unitCode", "KGM");//#?#
-                    grossWeightMeasure.addContent(entity.getVolumes().get(i).getTotalWeight() == null ? "" : dFormat.format(entity.getVolumes().get(i).getTotalWeight()).toString());//#?#
+                    grossWeightMeasure.addContent(entity.getVolumes().get(i).getTotalWeight() == null ? "" : dFormat.format(new BigDecimal(entity.getVolumes().get(i).getTotalWeight())));
                     transportLogisticsPackage.addContent(grossWeightMeasure);
                     transportLogisticsPackage.addContent(BREAK_ROW);
                 }
@@ -887,21 +886,21 @@ public class XMLUtils {
                 if (entity.getVolumes().get(i).getWidth() != null) {
                     Element widthMeasure = new Element("WidthMeasure", "ram", "iata:datamodel:3");
                     widthMeasure.setAttribute("unitCode", "CMT");
-                    widthMeasure.addContent(entity.getVolumes().get(i).getWidth() == null ? "" : dFormat.format(entity.getVolumes().get(i).getWidth()).toString());
+                    widthMeasure.addContent(entity.getVolumes().get(i).getWidth() == null ? "" : dFormat.format(new BigDecimal(entity.getVolumes().get(i).getWidth())));
                     linearSpatialDimension.addContent(widthMeasure);
                     linearSpatialDimension.addContent(BREAK_ROW);
                 }
                 if (entity.getVolumes().get(i).getLength() != null) {
                     Element lengthMeasure = new Element("LengthMeasure", "ram", "iata:datamodel:3");
                     lengthMeasure.setAttribute("unitCode", "CMT");
-                    lengthMeasure.addContent(entity.getVolumes().get(i).getLength() == null ? "" : dFormat.format(entity.getVolumes().get(i).getLength()).toString());
+                    lengthMeasure.addContent(entity.getVolumes().get(i).getLength() == null ? "" : dFormat.format(new BigDecimal(entity.getVolumes().get(i).getLength())));
                     linearSpatialDimension.addContent(lengthMeasure);
                     linearSpatialDimension.addContent(BREAK_ROW);
                 }
                 if (entity.getVolumes().get(i).getHeight() != null) {
                     Element heightMeasure = new Element("HeightMeasure", "ram", "iata:datamodel:3");
                     heightMeasure.setAttribute("unitCode", "CMT");
-                    heightMeasure.addContent(entity.getVolumes().get(i).getHeight() == null ? "" : dFormat.format(entity.getVolumes().get(i).getHeight()).toString());
+                    heightMeasure.addContent(entity.getVolumes().get(i).getHeight() == null ? "" : dFormat.format(new BigDecimal(entity.getVolumes().get(i).getHeight())));
                     linearSpatialDimension.addContent(heightMeasure);
                     linearSpatialDimension.addContent(BREAK_ROW);
                 }
@@ -910,7 +909,7 @@ public class XMLUtils {
                 includedHouseConsignmentItem.addContent(transportLogisticsPackage);
                 includedHouseConsignmentItem.addContent(BREAK_ROW);
                 Object[] frt = new Object[3];
-                frt = shipmentHouseDao.findfrtValueAndCurrency(entity.getId());
+                frt = shipmentRateDaoImpl.findFirstValueAndCurrencyByShipmentHouseId(entity.getId());
                 if (frt[0] != null && frt[1] != null) {
                     Element applicableFreightRateServiceCharge = new Element("ApplicableFreightRateServiceCharge", "ram", "iata:datamodel:3");
 //                applicableFreightRateServiceCharge.addContent(BREAK_ROW);
@@ -925,11 +924,11 @@ public class XMLUtils {
                         applicableFreightRateServiceCharge.addContent(chargeableWeightMeasure);
                         applicableFreightRateServiceCharge.addContent(BREAK_ROW);
                     }
-                    applicableFreightRateServiceCharge.addContent(createNewElementToXml("AppliedRate", "ram", "iata:datamodel:3", dFormat.format((BigDecimal) frt[2]).toString()));
+                    applicableFreightRateServiceCharge.addContent(createNewElementToXml("AppliedRate", "ram", "iata:datamodel:3", dFormat.format((BigDecimal) frt[2])));
                     applicableFreightRateServiceCharge.addContent(BREAK_ROW);
                     Element appliedAmount = new Element("AppliedAmount", "ram", "iata:datamodel:3");
                     appliedAmount.setAttribute("currencyID", (String) frt[0]);
-                    appliedAmount.addContent(dFormat.format((BigDecimal) frt[1]).toString());
+                    appliedAmount.addContent(dFormat.format((BigDecimal) frt[1]));
                     applicableFreightRateServiceCharge.addContent(appliedAmount);
                     applicableFreightRateServiceCharge.addContent(BREAK_ROW);
                     includedHouseConsignmentItem.addContent(applicableFreightRateServiceCharge);
@@ -941,7 +940,7 @@ public class XMLUtils {
                 associatedReferenceDocument.addContent(fillIDElementCCTXML(entity.getCarrier() == null ? entity.getMasterNumber() : entity.getCarrier().getCodNumeric() == null ? entity.getMasterNumber() : entity.getCarrier().getCodNumeric() + entity.getMasterNumber()));
                 associatedReferenceDocument.addContent(BREAK_ROW);
                 if (entity.getDateIssueHouse() != null) {
-                    associatedReferenceDocument.addContent(createNewElementToXml("IssueDateTime", "ram", "iata:datamodel:3", entity.getDateIssueHouse() == null ? "" : new DateTime(entity.getDateIssueHouse()).toString()));
+                    associatedReferenceDocument.addContent(createNewElementToXml("IssueDateTime", "ram", "iata:datamodel:3", entity.getDateIssueHouse() == null ? "" : entity.getDateIssueHouse().toString()));
                     associatedReferenceDocument.addContent(BREAK_ROW);
                 }
 //                associatedReferenceDocument.addContent(createNewElementToXml("TypeCode", "ram", "iata:datamodel:3", entity.getVolumes().get(i).getVolumeType() == null ? " " : entity.getVolumes().get(i).getVolumeType().getCode()));//#?#
