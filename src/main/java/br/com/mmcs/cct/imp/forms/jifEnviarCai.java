@@ -23,6 +23,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import org.jdom.Document;
+import org.jdom.output.XMLOutputter;
 
 /**
  *
@@ -211,7 +212,7 @@ public class jifEnviarCai extends javax.swing.JInternalFrame {
             XMLUtils xmlUtils = new XMLUtils();
             Document doc = xmlUtils.fillCCTDocument(shipmentHouse);
 
-            System.out.println(doc);
+            System.out.println(new XMLOutputter().outputString(doc));
 
             CertificadoUtils.criarConexaoComOCertificado(ConfiguracaoUtils.getTipoCertificado());
             CertificadoUtils.carregarCertificadosNaKeyStore(ConfiguracaoUtils.getTipoCertificado());

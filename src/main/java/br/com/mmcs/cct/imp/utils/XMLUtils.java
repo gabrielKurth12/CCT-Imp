@@ -1,6 +1,5 @@
 package br.com.mmcs.cct.imp.utils;
 
-import br.com.mmcs.cct.imp.dao.impl.ShipmentHouseDaoImpl;
 import br.com.mmcs.cct.imp.dao.impl.ShipmentRateDaoImpl;
 import br.com.mmcs.cct.imp.model.Address;
 import br.com.mmcs.cct.imp.model.ContactGeneral;
